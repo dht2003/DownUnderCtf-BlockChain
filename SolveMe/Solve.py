@@ -1,13 +1,14 @@
 from eth_utils import address
 from web3 import Web3
 import json
-from SolveMe.Util import init_challenge, compile_sol
+from SolveMe.Util import init_challenge
+from Compile import compile_sol
 
 DETAILS_URL = "https://blockchain-solveme-06abe249835cc81d.2022.ductf.dev/challenge"
 ENDPOINT_URL = "https://blockchain-solveme-06abe249835cc81d-eth.2022.ductf.dev/"
 CHAIN_ID = 31337
 
-SCRIPT_PATH = "SolveMe/SolveMe.sol"
+SCRIPT_PATH = "SolveMe.sol"
 
 compiled_sol = compile_sol(SCRIPT_PATH)
 
