@@ -8,7 +8,7 @@ DETAILS_URL = "https://blockchain-solveme-06abe249835cc81d.2022.ductf.dev/challe
 ENDPOINT_URL = "https://blockchain-solveme-06abe249835cc81d-eth.2022.ductf.dev/"
 CHAIN_ID = 31337
 
-SCRIPT_PATH = "SolveMe/SolveMe.sol"
+SCRIPT_PATH = "SolveMe.sol"
 
 compiled_sol = compile_sol(SCRIPT_PATH)
 

