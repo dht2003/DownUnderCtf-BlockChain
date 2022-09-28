@@ -2,13 +2,11 @@ from web3 import Web3
 import json
 from Secret_and_Ephemeral.Util import init_challenge, get_flag
 from web3.middleware import geth_poa_middleware
-from web3.contract import Contract
 from Compile import compile_sol
-from web3_input_decoder import decode_constructor, decode_function
 
 # Contract owner is 0x7BCF8A237e5d8900445C148FC2b119670807575b
 # not_yours =  so anyways i just started blasting
-# secret = 233573869
+# secret = 233573869 (0xdec0ded)
 
 SCRIPT_PATH = "SecretAndEphemeral.sol"
 
@@ -54,13 +52,6 @@ def call_contract_method(method_with_args):
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
     return tx_receipt
 
-
-# for i in range(10):
-#    transaction = w3.eth.getBlock(i)["transactions"]
-#    if transaction:
-#        for j in range(len(transaction)):
-#            t = w3.eth.get_transaction(f"{transaction[j].hex()}")
-#            print(t)
 
 def exploit():
     contract_owner = "0x7BCF8A237e5d8900445C148FC2b119670807575b"
